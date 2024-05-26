@@ -1,8 +1,12 @@
-fun main(args: Array<String>) {
+import java.io.File
+import java.io.FileInputStream
 
-    println("Hello World!")
+fun main() {
 
-    // Try adding program arguments via Run/Debug configuration.
-    // Learn more about running applications: https://www.jetbrains.com/help/idea/running-applications.html.
-    println("Program arguments: ${args.joinToString()}")
+    val cellManager = CellManager()
+    cellManager.readCsv(FileInputStream(File("src/main/resources/cells.csv")))
+
+    println("Company with the highest average build weight: " + cellManager.getCompanyWithHighestAvgBuildWeight())
+    println("Number of unique display types: " + cellManager.getUniqueValueCount("display_type"))
+    println("Year with the most phone launches: " + cellManager.getYearWithMostPhonesLaunched())
 }
