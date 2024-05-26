@@ -9,101 +9,19 @@ class CellManager {
 
     private var cells: HashMap<Int, Cell> = HashMap()
 
-    fun getCells(): HashMap<Int, Cell> {
-        return cells
-    }
-
-    fun getYearWithMostPhonesLaunched(): Int {
-
-        val launchYears: ArrayList<Int> = arrayListOf()
-        val phonesLaunched: ArrayList<Int> = arrayListOf()
-
-        for ((key, value) in cells) {
-
-            if (!launchYears.contains(value.launchAnnounced) && value.launchAnnounced != null &&
-                value.launchAnnounced > 1999) {
-
-                launchYears.add(value.launchAnnounced)
-                phonesLaunched.add(1)
-            }
-            if (launchYears.contains(value.launchAnnounced) && value.launchAnnounced != null) {
-
-                phonesLaunched[launchYears.indexOf(value.launchAnnounced)] += 1
-            }
-        }
-        return launchYears[phonesLaunched.indices.maxBy { phonesLaunched[it] }]
-    }
-
-    fun getCompanyWithHighestAvgBuildWeight(): String {
-
-        var index: Int
-        val uniqueCount: ArrayList<String> = arrayListOf()
-        val weightSums: ArrayList<Float> = arrayListOf()
-        val weightCounts: ArrayList<Int> = arrayListOf()
-        val avgWeights: ArrayList<Float> = arrayListOf()
-
-        for ((key, value) in cells) {
-
-            if (!uniqueCount.contains(value.oem) && value.oem != null) {
-
-                uniqueCount.add(value.oem)
-                weightSums.add(0F)
-                weightCounts.add(0)
-                avgWeights.add(0F)
-            }
-            if (uniqueCount.contains(value.oem)) {
-
-                index = uniqueCount.indexOf(value.oem)
-
-                if (value.bodyWeight != null) {
-
-                    weightSums[index] = weightSums[index] + value.bodyWeight!!
-                }
-                weightCounts[index] += 1
-            }
-        }
-        for (oem in uniqueCount.indices) {
-
-            avgWeights[oem] = weightSums[oem] / weightCounts[oem]
-        }
-        return uniqueCount[avgWeights.indices.maxBy { avgWeights[it] }]
-    }
-
-    fun getUniqueValueCount(columnName: String): Int? {
-
-        if (cells.size > 0) {
-
-            var columnData: String
-            val uniqueCount: ArrayList<String> = arrayListOf()
-
-            // Check if there is a column by that name.
-            if (cells[0]?.getColumn(columnName) == null) {
-                return null
-            }
-
-            for ((key, value) in cells) {
-
-                columnData = value.getColumn(columnName).toString()
-
-                if (!uniqueCount.contains(columnData) && columnData.isNotBlank()) {
-
-                    uniqueCount.add(value.getColumn(columnName).toString())
-                }
-            }
-            return uniqueCount.size
-        }
-        return null
-    }
-
     /**
      * Reads a CSV file and returns a list of cells.
      *
      * @param inputStream the file to be read (as a file input stream).
      * @return list of cell objects (list will be empty if file format is invalid).
      */
-    fun readCsv(inputStream: InputStream): HashMap<Int, Cell> {
+    fun readCsv(inputStream: InputStream): HashMap<Int, Cell>? {
 
         try {
+
+            if (cells.isNotEmpty()) {
+                cells.clear()
+            }
 
             val reader: BufferedReader = inputStream.bufferedReader()
             val header: String = reader.readLine()
@@ -207,6 +125,8 @@ class CellManager {
                                 bodySIM.contentEquals("No")) {
                                 bodySIM = null
                             }
+                        } else {
+                            bodySIM = null
                         }
                     }
 
@@ -280,11 +200,199 @@ class CellManager {
                     cells[index] = lines[index]
                 }
             }
+            return cells
 
         } catch (exception: Exception) {
 
-            println("Format of CSV file is invalid. Returning empty list.")
+            return null
         }
+    }
+
+    fun getCells(): HashMap<Int, Cell> {
         return cells
+    }
+
+    fun getHighestAvgBuildWeight(): String {
+
+        var index: Int
+        val uniqueCount: ArrayList<String> = arrayListOf()
+        val weightSums: ArrayList<Float> = arrayListOf()
+        val weightCounts: ArrayList<Int> = arrayListOf()
+        val avgWeights: ArrayList<Float> = arrayListOf()
+
+        for ((key, value) in cells) {
+
+            if (!uniqueCount.contains(value.oem) && value.oem != null) {
+
+                uniqueCount.add(value.oem)
+                weightSums.add(0F)
+                weightCounts.add(0)
+                avgWeights.add(0F)
+            }
+            if (uniqueCount.contains(value.oem)) {
+
+                index = uniqueCount.indexOf(value.oem)
+
+                if (value.bodyWeight != null) {
+
+                    weightSums[index] = weightSums[index] + value.bodyWeight!!
+                }
+                weightCounts[index] += 1
+            }
+        }
+        for (oem in uniqueCount.indices) {
+
+            avgWeights[oem] = weightSums[oem] / weightCounts[oem]
+        }
+        return uniqueCount[avgWeights.indices.maxBy { avgWeights[it] }]
+    }
+
+    fun getSeparateAnnouncementAndLaunchYears(): List<Cell> {
+
+        val delayedCells: ArrayList<Cell> = arrayListOf()
+        var releaseDate: Int?
+
+        for ((key, value) in cells) {
+
+            if (!delayedCells.contains(value) && value.launchAnnounced != null) {
+
+                releaseDate = value.launchStatus?.let { "(\\d+)".toRegex().find(it)?.value?.toInt() }
+
+                if (releaseDate != null && releaseDate != value.launchAnnounced) {
+
+                    delayedCells.add(value)
+                }
+            }
+        }
+        return delayedCells
+    }
+
+    fun getPhonesWithOneFeatureSensor(): Int {
+
+        var oneFeatureSensorCount = 0
+
+        for ((key, value) in cells) {
+
+            // Multiple feature sensors always use commas to separate them.
+            // By ignoring feature sensors with commas we get phones with only one feature.
+            if (value.featuresSensors != null && !value.featuresSensors.contains(",")) {
+
+                oneFeatureSensorCount++
+            }
+        }
+        return oneFeatureSensorCount
+    }
+
+    fun getYearWithMostPhonesLaunched(): Int {
+
+        val launchYears: ArrayList<Int> = arrayListOf()
+        val phonesLaunched: ArrayList<Int> = arrayListOf()
+
+        for ((key, value) in cells) {
+
+            if (!launchYears.contains(value.launchAnnounced) && value.launchAnnounced != null &&
+                value.launchAnnounced > 1999) {
+
+                launchYears.add(value.launchAnnounced)
+                phonesLaunched.add(1)
+            }
+            if (launchYears.contains(value.launchAnnounced) && value.launchAnnounced != null) {
+
+                phonesLaunched[launchYears.indexOf(value.launchAnnounced)] += 1
+            }
+        }
+        return launchYears[phonesLaunched.indices.maxBy { phonesLaunched[it] }]
+    }
+
+    fun getColumnMean(columnName: String): Float? {
+
+        if (cells.size > 0) {
+
+            var columnData: Float
+            var columnSum = 0F
+            var columnCount = 0
+            val acceptableColumnNames: ArrayList<String> = arrayListOf()
+
+            acceptableColumnNames.add("launch_announced")
+            acceptableColumnNames.add("body_weight")
+            acceptableColumnNames.add("display_size")
+
+            // Check if there is a column by that name.
+            // Also, prevent using a column of strings (getting the mean won't make sense).
+            if (!acceptableColumnNames.contains(columnName)) {
+                return null
+            }
+            for ((key, value) in cells) {
+
+                if (value.getColumn(columnName) != null) {
+
+                    columnData = value.getColumn(columnName) as Float
+                    columnSum += columnData
+                    columnCount++
+                }
+            }
+            return (columnSum / columnCount)
+        }
+        return null
+    }
+
+    fun getColumnMedian(columnName: String): Float? {
+
+        if (cells.size > 0) {
+
+            val rowData: ArrayList<Float> = arrayListOf()
+            val acceptableColumnNames: ArrayList<String> = arrayListOf()
+
+            acceptableColumnNames.add("launch_announced")
+            acceptableColumnNames.add("body_weight")
+            acceptableColumnNames.add("display_size")
+
+            // Check if there is a column by that name.
+            // Also, prevent using a column of strings (getting the mean won't make sense).
+            if (!acceptableColumnNames.contains(columnName)) {
+                return null
+            }
+            for ((key, value) in cells) {
+
+                if (value.getColumn(columnName) != null) {
+
+                    rowData.add(value.getColumn(columnName).toString().toFloat())
+                }
+            }
+            rowData.sort()
+
+            if (rowData.size % 2 == 1) {
+                return rowData[rowData.size / 2]
+            } else {
+                return (rowData[rowData.size / 2 - 1] + rowData[rowData.size / 2]) / 2
+            }
+        }
+        return null
+    }
+
+    fun getUniqueValueCount(columnName: String): Int? {
+
+        if (cells.size > 0) {
+
+            var columnData: String
+            val uniqueCount: ArrayList<String> = arrayListOf()
+
+            // Check if there is a column by that name.
+            if (cells[0]?.getColumn(columnName) == null) {
+                return null
+            }
+
+            for ((key, value) in cells) {
+
+                columnData = value.getColumn(columnName).toString()
+
+                if (!uniqueCount.contains(columnData) && columnData.isNotBlank()) {
+
+                    uniqueCount.add(value.getColumn(columnName).toString())
+                }
+            }
+            return uniqueCount.size
+        }
+        return null
     }
 }
