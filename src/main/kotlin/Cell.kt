@@ -21,8 +21,14 @@ data class Cell(val oem: String?, val model: String?, val launchAnnounced: Int?,
                 val bodySIM: String?, val displayType: String?, val displaySize: Float?,
                 val displayResolution: String?, val featuresSensors: String?, val platformOS: String?) {
 
-    // NOTE: parameters in the data class constructor (see above) have internal getter and setter methods.
+    // NOTE: parameters in the data class constructor (see above) have builtin getter and setter methods.
 
+    /**
+     * Returns a column of the cellphone based on the given name.
+     *
+     * @param columnName the name of the column.
+     * @return the data in the specified column.
+     */
     fun getColumn(columnName: String): Any? {
 
         when (columnName.lowercase()) {
@@ -44,6 +50,11 @@ data class Cell(val oem: String?, val model: String?, val launchAnnounced: Int?,
         }
     }
 
+    /**
+     * Returns a string representation of the cellphone data.
+     *
+     * @return string representation of the cellphone data.
+     */
     override fun toString(): String {
 
         return "Cell(oem=$oem, model=$model, launchAnnounced=$launchAnnounced, " +
@@ -53,6 +64,11 @@ data class Cell(val oem: String?, val model: String?, val launchAnnounced: Int?,
                 "featuresSensors=$featuresSensors, platformOS=$platformOS)"
     }
 
+    /**
+     * Returns true if the cellphones are equal content-wise, else false.
+     *
+     * @return true if the cellphones are equal content-wise, else false.
+     */
     override fun equals(other: Any?): Boolean {
 
         if (this === other) return true
@@ -76,8 +92,15 @@ data class Cell(val oem: String?, val model: String?, val launchAnnounced: Int?,
         return true
     }
 
+    /**
+     * Returns a hashcode of the cellphone.
+     *
+     * @return hashcode of the cellphone.
+     */
     override fun hashCode(): Int {
+
         var result = oem?.hashCode() ?: 0
+
         result = 31 * result + (model?.hashCode() ?: 0)
         result = 31 * result + (launchAnnounced ?: 0)
         result = 31 * result + (launchStatus?.hashCode() ?: 0)
@@ -89,6 +112,7 @@ data class Cell(val oem: String?, val model: String?, val launchAnnounced: Int?,
         result = 31 * result + (displayResolution?.hashCode() ?: 0)
         result = 31 * result + (featuresSensors?.hashCode() ?: 0)
         result = 31 * result + (platformOS?.hashCode() ?: 0)
+
         return result
     }
 }

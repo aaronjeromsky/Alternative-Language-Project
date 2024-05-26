@@ -2,11 +2,11 @@
 
 **Which programming language and version did you pick?**
 
-I picked the programming language called Kotlin, using the most recent version as of this report (223-1.8.0-release-345-IJ8617.56).
+I picked the programming language Kotlin, using the most recent version as of this report (223-1.8.0-release-345-IJ8617.56).
 
 **Why did you pick this programming language?**
 
-Inset text here.
+Kotlin is an object-oriented programming language. It seemed like a good jumping-off point from Java since it is similar to it, but aims to follow modern sensibilities in its syntax.
 
 **How your programming language chosen handles: object-oriented programming, file ingestion, conditional statements, assignment statements, loops, subprograms (functions/methods), unit testing and exception handling. If one or more of these are not supported by your programming language, indicate it as so.**
 
@@ -17,6 +17,8 @@ Inset text here.
 Inset text here.
 
 **Answer the following questions (and provide a corresponding screen showing output answering them):**
+
+![screen output](/screenshots/Screenshot%20(360).png)
 
 * **What company (oem) has the highest average weight of the phone body?**
 

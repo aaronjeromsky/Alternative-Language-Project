@@ -10,7 +10,7 @@ fun main() {
 
     val delayedCells: List<Cell> = cellManager.getSeparateAnnouncementAndLaunchYears()
 
-    println("Phones with different announcement and release years:")
+    println("Phones with a release year later than their announcement year:")
 
     for (cell in delayedCells) {
 

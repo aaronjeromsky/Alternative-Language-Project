@@ -10,10 +10,12 @@ class CellManager {
     private var cells: HashMap<Int, Cell> = HashMap()
 
     /**
-     * Reads a CSV file and returns a list of cells.
+     * Reads a CSV file and records and returns them as a hashmap.
+     *
+     * Runtime: O(n)
      *
      * @param inputStream the file to be read (as a file input stream).
-     * @return list of cell objects (list will be empty if file format is invalid).
+     * @return the hashmap of cell objects, null if the file format is invalid.
      */
     fun readCsv(inputStream: InputStream): HashMap<Int, Cell>? {
 
@@ -208,10 +210,22 @@ class CellManager {
         }
     }
 
+    /**
+     * Returns the hashmap of cellphones.
+     *
+     * @return the hashmap of cellphones.
+     */
     fun getCells(): HashMap<Int, Cell> {
         return cells
     }
 
+    /**
+     * Returns the OEM with the highest average build weight (in grams).
+     *
+     * Runtime: O(n)
+     *
+     * @return the OEM with the highest average build weight (in grams).
+     */
     fun getHighestAvgBuildWeight(): String {
 
         var index: Int
@@ -247,6 +261,13 @@ class CellManager {
         return uniqueCount[avgWeights.indices.maxBy { avgWeights[it] }]
     }
 
+    /**
+     * Returns a list of cellphones that were released in a later year than they were announced.
+     *
+     * Runtime: O(n)
+     *
+     * @return list of cellphones that were released in a later year than they were announced.
+     */
     fun getSeparateAnnouncementAndLaunchYears(): List<Cell> {
 
         val delayedCells: ArrayList<Cell> = arrayListOf()
@@ -258,7 +279,7 @@ class CellManager {
 
                 releaseDate = value.launchStatus?.let { "(\\d+)".toRegex().find(it)?.value?.toInt() }
 
-                if (releaseDate != null && releaseDate != value.launchAnnounced) {
+                if (releaseDate != null && releaseDate > value.launchAnnounced) {
 
                     delayedCells.add(value)
                 }
@@ -267,6 +288,13 @@ class CellManager {
         return delayedCells
     }
 
+    /**
+     * Returns the number of cellphones with exactly one feature sensor.
+     *
+     * Runtime: O(n)
+     *
+     * @return number of cellphones with exactly one feature sensor.
+     */
     fun getPhonesWithOneFeatureSensor(): Int {
 
         var oneFeatureSensorCount = 0
@@ -283,6 +311,13 @@ class CellManager {
         return oneFeatureSensorCount
     }
 
+    /**
+     * Returns the year with the most cellphone launches.
+     *
+     * Runtime: O(n)
+     *
+     * @return the year with the most cellphone launches.
+     */
     fun getYearWithMostPhonesLaunched(): Int {
 
         val launchYears: ArrayList<Int> = arrayListOf()
@@ -304,6 +339,15 @@ class CellManager {
         return launchYears[phonesLaunched.indices.maxBy { phonesLaunched[it] }]
     }
 
+    /**
+     * Returns the mean of the given column.
+     * The column must be composed of numbers.
+     *
+     * Runtime: O(n)
+     *
+     * @param columnName name of the column.
+     * @return the mean of the given column.
+     */
     fun getColumnMean(columnName: String): Float? {
 
         if (cells.size > 0) {
@@ -336,6 +380,15 @@ class CellManager {
         return null
     }
 
+    /**
+     * Returns the median of the given column.
+     * The column must be composed of numbers.
+     *
+     * Runtime: O(n)
+     *
+     * @param columnName name of the column.
+     * @return the median of the given column.
+     */
     fun getColumnMedian(columnName: String): Float? {
 
         if (cells.size > 0) {
@@ -370,6 +423,15 @@ class CellManager {
         return null
     }
 
+    /**
+     * Returns the number of unique values in the given column.
+     * All columns are valid.
+     *
+     * Runtime: O(n)
+     *
+     * @param columnName name of the column.
+     * @return the number of unique values in the given column.
+     */
     fun getUniqueValueCount(columnName: String): Int? {
 
         if (cells.size > 0) {
